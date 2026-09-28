@@ -1,0 +1,1 @@
+export default function PageHeader({ title, description, action }) { return <div className="mb-7 flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><h1 className="page-title">{title}</h1>{description && <p className="mt-2 max-w-2xl text-sm text-slate-600">{description}</p>}</div>{action}</div> }

@@ -1,0 +1,5 @@
+import { getServices, saveServices } from './mockStore'
+import { apiRequest, useMocks } from './apiClient'
+import { services as visualServices } from '../data/mock/services'
+const hydrate = (item) => ({ ...item, icon: visualServices.find((service) => service.id === item.id || service.id === item.slug)?.icon })
+export const serviceService = { list: () => getServices().map(hydrate), listAsync: async () => useMocks ? getServices().map(hydrate) : (await apiRequest('/services')).map(hydrate), bySlugAsync: async (slug) => useMocks ? hydrate(getServices().find((item) => item.id === slug)) : hydrate(await apiRequest(`/services/${slug}`)), update: (id, changes) => { const all = getServices().map((item) => item.id === id ? { ...item, ...changes } : item); saveServices(all); return all.find((item) => item.id === id) }, create: (data) => { const all = getServices(); const item = { ...data, id: data.name.toLowerCase().replaceAll(' ', '-'), active: true }; saveServices([...all, item]); return item } }

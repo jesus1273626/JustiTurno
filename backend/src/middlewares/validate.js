@@ -1,0 +1,2 @@
+export const validate = (schema) => (req, _res, next) => { const result = schema.safeParse(req.body); if (!result.success) return next({ status: 400, message: result.error.issues[0].message }); req.body = result.data; next() }
+export const validateQuery = (schema) => (req, _res, next) => { const result = schema.safeParse(req.query); if (!result.success) return next({ status: 400, message: result.error.issues[0].message }); req.validatedQuery = result.data; next() }

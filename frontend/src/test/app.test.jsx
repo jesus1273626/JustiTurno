@@ -1,0 +1,9 @@
+import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+import HomePage from '../pages/public/HomePage'
+import ServicesPage from '../pages/public/ServicesPage'
+import StatusBadge from '../components/ui/StatusBadge'
+import LoginPage from '../pages/auth/LoginPage'
+import { AuthProvider } from '../context/AuthContext'
+import { appointmentService } from '../services/appointmentService'
+describe('componentes públicos', () => { beforeEach(() => localStorage.clear()); test('renderiza inicio', () => { render(<MemoryRouter><HomePage/></MemoryRouter>); expect(screen.getByText('Tu acceso a la justicia, más organizado')).toBeInTheDocument() }); test('renderiza los servicios', async () => { render(<MemoryRouter><ServicesPage/></MemoryRouter>); expect(screen.getByText('Servicios disponibles')).toBeInTheDocument(); expect(await screen.findByText('Orientación jurídica')).toBeInTheDocument() }); test('renderiza el estado', () => { render(<StatusBadge status="ACEPTADA"/>); expect(screen.getByText('Aceptada')).toBeInTheDocument() }); test('renderiza formulario de inicio de sesión', () => { render(<MemoryRouter><AuthProvider><LoginPage/></AuthProvider></MemoryRouter>); expect(screen.getByLabelText('Correo electrónico')).toBeInTheDocument(); expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument() }); test('crea una solicitud mock persistida', () => { const result = appointmentService.create({ service: 'Orientación jurídica', serviceId: 'orientacion-juridica', date: '2026-09-25', time: '08:00', reason: 'Solicitud de demostración' }, { id: 'citizen-test', name: 'Persona Demo', document: '1.***.000' }); expect(result.status).toBe('PENDIENTE'); expect(appointmentService.byId(result.id).citizen).toBe('Persona Demo') }) })

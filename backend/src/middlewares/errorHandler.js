@@ -1,0 +1,2 @@
+import { Prisma } from '@prisma/client'
+export const errorHandler = (err, _req, res, _next) => { const status = err.status || (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002' ? 409 : 500); const message = status === 500 ? 'Ocurrió un error inesperado.' : err.message; if (status === 500) console.error(err); res.status(status).json({ success: false, error: { message } }) }
