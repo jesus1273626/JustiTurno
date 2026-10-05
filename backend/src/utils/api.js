@@ -1,2 +1,2 @@
 export const success = (res, data, status = 200) => res.status(status).json({ success: true, data })
-export const publicUser = ({ passwordHash: _passwordHash, ...user }) => user
+export const publicUser = ({ passwordHash: _passwordHash, failedLoginAttempts: _attempts, lockedUntil: _lockedUntil, ...user }) => user

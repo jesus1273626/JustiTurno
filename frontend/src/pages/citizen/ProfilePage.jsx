@@ -1,6 +1,19 @@
-import { useState } from 'react'
-import { Pencil } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useAuth } from '../../context/AuthContext'
+import { profileService } from '../../services/profileService'
 import PageHeader from '../../components/ui/PageHeader'
-export default function ProfilePage() { const { user, updateUser } = useAuth(); const [edit, setEdit] = useState(false); const [form, setForm] = useState({ firstName: user.firstName, lastName: user.lastName, email: user.email, phone: user.phone || '' }); const save = (e) => { e.preventDefault(); updateUser({ ...form, name: `${form.firstName} ${form.lastName}` }); toast.success('Datos actualizados correctamente.'); setEdit(false) }; return <><PageHeader title="Mi perfil" description="Consulta y actualiza tus datos de contacto." action={!edit && <button className="btn-secondary" onClick={() => setEdit(true)}><Pencil size={17}/>Editar perfil</button>}/><form className="card max-w-2xl p-6" onSubmit={save}><div className="grid gap-5 sm:grid-cols-2">{[['Nombre', 'firstName'], ['Apellidos', 'lastName'], ['Documento', 'document'], ['Correo electrónico', 'email'], ['Teléfono', 'phone']].map(([label, key]) => <label className={key === 'email' || key === 'phone' ? 'sm:col-span-2' : ''} key={key}><span className="label">{label}</span><input className="field disabled:bg-slate-50" disabled={!edit || key === 'document'} value={key === 'document' ? user.document || 'No registrado' : form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}/></label>)}</div>{edit && <div className="mt-6 flex justify-end gap-3 border-t pt-5"><button type="button" className="btn-ghost" onClick={() => setEdit(false)}>Cancelar</button><button className="btn-primary">Guardar cambios</button></div>}</form></> }
+import PersonalInfo from '../../components/profile/PersonalInfo'
+import ChangePassword from '../../components/profile/ChangePassword'
+import ActiveSessions from '../../components/profile/ActiveSessions'
+
+export default function ProfilePage() {
+  const { user, logoutAll } = useAuth()
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
+  useEffect(() => { profileService.getProfile().then(setProfile).catch((error) => toast.error(error.message)).finally(() => setLoading(false)) }, [])
+  const handleLogoutAll = async () => { await logoutAll() }
+  if (loading) return <p className="text-sm text-slate-500">Cargando tu perfil…</p>
+  const data = profile || user || {}
+  return <><PageHeader title="Mi perfil" description="Consulta y actualiza tus datos personales y de seguridad."/><div className="grid max-w-4xl gap-6"><PersonalInfo user={data}/><ChangePassword/><ActiveSessions onLogoutAll={handleLogoutAll}/></div></>
+}
