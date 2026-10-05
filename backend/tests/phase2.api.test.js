@@ -1,11 +1,13 @@
 import bcrypt from 'bcryptjs'
+import { DateTime } from 'luxon'
 import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { app } from '../src/app.js'
 import { prisma } from '../src/config/prisma.js'
 
-const nextWeekday = () => { const value = new Date(); value.setDate(value.getDate() + 1); while ([0, 6].includes(value.getDay())) value.setDate(value.getDate() + 1); return value.toISOString().slice(0, 10) }
-const sunday = () => { const value = new Date(); value.setDate(value.getDate() + ((7 - value.getDay()) % 7 || 7)); return value.toISOString().slice(0, 10) }
+const localToday = () => DateTime.now().setZone('America/Bogota')
+const nextWeekday = () => { let value = localToday().plus({ days: 1 }); while ([0, 6].includes(value.weekday % 7)) value = value.plus({ days: 1 }); return value.toISODate() }
+const sunday = () => { let value = localToday().plus({ days: 1 }); while (value.weekday % 7 !== 0) value = value.plus({ days: 1 }); return value.toISODate() }
 const testEmail = `fase2.${Date.now()}@ejemplo.com`
 const secondEmployeeEmail = `funcionario.fase2.${Date.now()}@ejemplo.com`
 let citizen; let anotherCitizen; let employee; let secondEmployee; let admin; let service; let date; let slot; const createdIds = []
