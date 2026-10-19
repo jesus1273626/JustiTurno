@@ -18,7 +18,7 @@ export default function EmployeeProfilePage() {
       .then(([dashboard]) => { setServices(dashboard.services || []); setProfile({ ...(user || {}), ...dashboard.user }) })
       .catch((error) => toast.error(error.message))
       .finally(() => setLoading(false))
-  }, [])
+  }, [user])
   const handleLogoutAll = async () => { await logoutAll() }
   if (loading) return <p className="text-sm text-slate-500">Cargando tu perfil…</p>
   const data = profile || user || {}

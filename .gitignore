@@ -4,9 +4,11 @@ coverage/
 .env
 .env.*
 !.env.example
+!.env.test
 *.log
 npm-debug.log*
 .DS_Store
 .vscode/
 .idea/
 prisma/dev.db
+backend/uploads/

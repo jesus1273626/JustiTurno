@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { CalendarDays, ClipboardList, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import PageHeader from '../../components/ui/PageHeader'
@@ -23,18 +23,18 @@ export default function AdminAuditPage() {
   const [action, setAction] = useState('')
   const [entityType, setEntityType] = useState('')
   const [date, setDate] = useState('')
-  const [page, setPage] = useState(1)
+  const [, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
 
-  const load = (targetPage = page) => {
+  const load = useCallback((targetPage = 1) => {
     setLoading(true)
     const filters = { page: targetPage, limit: 12, ...(action ? { action } : {}), ...(entityType ? { entityType } : {}), ...(date ? { date } : {}) }
     adminService.auditLogs(filters)
       .then((result) => { setItems(result.items || []); setPagination(result.pagination); setPage(targetPage) })
       .catch((error) => toast.error(error.message))
       .finally(() => setLoading(false))
-  }
-  useEffect(() => { load(1) }, [action, entityType, date])
+  }, [action, entityType, date])
+  useEffect(() => { load(1) }, [load])
 
   return <><PageHeader title="Auditoría" description="Registro de las acciones relevantes realizadas en la plataforma."/>
     <div className="mb-5 flex flex-col gap-3 sm:flex-row">

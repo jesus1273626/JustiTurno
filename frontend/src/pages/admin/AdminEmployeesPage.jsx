@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { CheckCircle2, CircleOff, Pencil, Plus, Search, UserRound, Wrench, X } from 'lucide-react'
 import { toast } from 'sonner'
 import PageHeader from '../../components/ui/PageHeader'
@@ -15,22 +15,22 @@ export default function AdminEmployeesPage() {
   const [services, setServices] = useState([])
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState('')
-  const [page, setPage] = useState(1)
+  const [, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [editing, setEditing] = useState(null)
   const [detail, setDetail] = useState(null)
   const [toggling, setToggling] = useState(null)
 
-  const load = (targetPage = page) => {
+  const load = useCallback((targetPage = 1) => {
     setLoading(true)
     const filters = { page: targetPage, limit: 8, ...(search ? { search } : {}), ...(activeFilter ? { active: activeFilter } : {}) }
     adminService.employees(filters)
       .then((result) => { setItems(result.items || []); setPagination(result.pagination); setPage(targetPage) })
       .catch((error) => toast.error(error.message))
       .finally(() => setLoading(false))
-  }
-  useEffect(() => { load(1) }, [search, activeFilter])
+  }, [search, activeFilter])
+  useEffect(() => { load(1) }, [load])
   useEffect(() => { adminService.services().then(setServices).catch((error) => toast.error(error.message)) }, [])
 
   const openNew = () => setEditing('new')

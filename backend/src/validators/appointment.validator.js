@@ -7,3 +7,4 @@ export const rejectSchema = z.object({ reason: z.string().trim().min(5, 'El moti
 export const rescheduleSchema = z.object({ date, time, reason: z.string().trim().min(5, 'El motivo es obligatorio.').max(1000) })
 export const observationSchema = z.object({ message: z.string().trim().min(2).max(1500), visibleToCitizen: z.boolean().default(true) })
 export const appointmentFiltersSchema = z.object({ status: z.string().optional(), date: date.optional(), search: z.string().trim().optional(), serviceId: z.string().optional(), assignedToMe: z.enum(['true', 'false']).optional(), upcoming: z.enum(['true', 'false']).optional(), history: z.enum(['true', 'false']).optional(), page: z.coerce.number().int().min(1).default(1), limit: z.coerce.number().int().min(1).max(100).default(20) })
+export const agendaSchema = z.object({ date: date.optional() })

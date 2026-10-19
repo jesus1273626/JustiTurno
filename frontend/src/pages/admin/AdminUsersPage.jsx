@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { CheckCircle2, CircleOff, Search, UserRound, X } from 'lucide-react'
 import { toast } from 'sonner'
 import PageHeader from '../../components/ui/PageHeader'
@@ -15,20 +15,20 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('')
   const [role, setRole] = useState('')
   const [activeFilter, setActiveFilter] = useState('')
-  const [page, setPage] = useState(1)
+  const [, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState(null)
   const [detail, setDetail] = useState(null)
 
-  const load = (targetPage = page) => {
+  const load = useCallback((targetPage = 1) => {
     setLoading(true)
     const filters = { page: targetPage, limit: 8, ...(search ? { search } : {}), ...(role ? { role } : {}), ...(activeFilter ? { active: activeFilter } : {}) }
     adminService.users(filters)
       .then((result) => { setItems(result.items || []); setPagination(result.pagination); setPage(targetPage) })
       .catch((error) => toast.error(error.message))
       .finally(() => setLoading(false))
-  }
-  useEffect(() => { load(1) }, [search, role, activeFilter])
+  }, [search, role, activeFilter])
+  useEffect(() => { load(1) }, [load])
 
   const filter = () => load(1)
   const toggleStatus = async () => {

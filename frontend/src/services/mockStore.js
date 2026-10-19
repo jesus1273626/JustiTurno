@@ -1,6 +1,6 @@
 import { seedAppointments } from '../data/mock/appointments'
 import { services as defaultServices } from '../data/mock/services'
-const keys = { appointments: 'jt_appointments', services: 'jt_services', users: 'jt_users', schedules: 'jt_schedules' }
+const keys = { appointments: 'jt_appointments', services: 'jt_services', users: 'jt_users', schedules: 'jt_schedules', notifications: 'jt_notifications' }
 const clone = (value) => JSON.parse(JSON.stringify(value))
 export const getStored = (key, fallback) => { const data = localStorage.getItem(key); if (!data) { localStorage.setItem(key, JSON.stringify(fallback)); return clone(fallback) } try { return JSON.parse(data) } catch { return clone(fallback) } }
 export const setStored = (key, value) => localStorage.setItem(key, JSON.stringify(value))
@@ -10,3 +10,5 @@ export const getServices = () => getStored(keys.services, defaultServices.map((s
 export const saveServices = (items) => setStored(keys.services, items)
 export const getSchedules = () => getStored(keys.schedules, getServices().flatMap((service) => [1, 2, 3, 4, 5].flatMap((dayOfWeek) => [{ id: `${service.id}-${dayOfWeek}-morning`, serviceId: service.id, service, dayOfWeek, startTime: '08:00', endTime: '12:00', slotDuration: 60, capacity: 2, active: true }, { id: `${service.id}-${dayOfWeek}-afternoon`, serviceId: service.id, service, dayOfWeek, startTime: '14:00', endTime: '16:00', slotDuration: 60, capacity: 2, active: true }])))
 export const saveSchedules = (items) => setStored(keys.schedules, items)
+export const getNotifications = () => getStored(keys.notifications, [])
+export const saveNotifications = (items) => setStored(keys.notifications, items)

@@ -22,3 +22,12 @@ export const employeeDashboard = async (req, res, next) => {
     success(res, { pendingAvailable, myAccepted, attendedToday, toFinalize, services, todayAgenda: todayAgenda.map(serialize) })
   } catch (error) { next(error) }
 }
+
+export const employeeAgenda = async (req, res, next) => {
+  try {
+    const date = req.validatedQuery?.date || req.query.date || localDate(new Date())
+    const { start, end } = dateRangeUtc(date)
+    const items = await prisma.appointment.findMany({ where: { assignedEmployeeId: req.user.id, scheduledAt: { gte: start, lt: end }, status: { in: ['ACCEPTED', 'RESCHEDULED', 'ATTENDED'] } }, include: agendaInclude, orderBy: { scheduledAt: 'asc' } })
+    success(res, { date, items: items.map(serialize) })
+  } catch (error) { next(error) }
+}

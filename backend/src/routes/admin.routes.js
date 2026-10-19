@@ -2,10 +2,13 @@ import { Router } from 'express'
 import { authenticate, authorize } from '../middlewares/auth.js'
 import { validate, validateQuery } from '../middlewares/validate.js'
 import { adminAppointments, adminAudit, adminDashboard, adminEmployees, adminServices, adminSchedules, adminUsers, createEmployee, createRequirement, createSchedule, createService, deleteRequirement, getEmployee, getUser, setEmployeeServices, setEmployeeStatus, setScheduleStatus, setServiceStatus, setUserStatus, updateEmployee, updateRequirement, updateSchedule, updateService } from '../controllers/admin.controller.js'
-import { activeSchema, auditFiltersSchema, employeeCreateSchema, employeeFiltersSchema, employeeServicesSchema, employeeUpdateSchema, requirementCreateSchema, requirementUpdateSchema, scheduleSchema, scheduleUpdateSchema, serviceSchema, userFiltersSchema, userStatusSchema } from '../validators/admin.validator.js'
+import { appointmentReport, appointmentReportCsv } from '../controllers/report.controller.js'
+import { activeSchema, auditFiltersSchema, employeeCreateSchema, employeeFiltersSchema, employeeServicesSchema, employeeUpdateSchema, reportFiltersSchema, requirementCreateSchema, requirementUpdateSchema, scheduleSchema, scheduleUpdateSchema, serviceSchema, userFiltersSchema, userStatusSchema } from '../validators/admin.validator.js'
 const router = Router()
 router.use(authenticate, authorize('ADMIN'))
 router.get('/dashboard', adminDashboard)
+router.get('/reports/appointments', validateQuery(reportFiltersSchema), appointmentReport)
+router.get('/reports/appointments.csv', validateQuery(reportFiltersSchema), appointmentReportCsv)
 router.get('/appointments', adminAppointments)
 router.get('/audit', validateQuery(auditFiltersSchema), adminAudit)
 router.get('/users', validateQuery(userFiltersSchema), adminUsers)

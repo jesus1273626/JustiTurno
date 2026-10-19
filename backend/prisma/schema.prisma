@@ -23,6 +23,18 @@ enum AppointmentStatus {
   FINALIZED
 }
 
+enum NotificationType {
+  APPOINTMENT_CREATED
+  APPOINTMENT_ACCEPTED
+  APPOINTMENT_REJECTED
+  APPOINTMENT_RESCHEDULED
+  APPOINTMENT_CANCELED
+  APPOINTMENT_ATTENDED
+  APPOINTMENT_FINALIZED
+  APPOINTMENT_OBSERVATION
+  ACCOUNT_STATUS_CHANGED
+}
+
 model User {
   id String @id @default(cuid())
   firstName String
@@ -44,6 +56,8 @@ model User {
   sessions UserSession[]
   employeeServices EmployeeService[]
   auditLogs AuditLog[]
+  notifications Notification[]
+  uploadedAttachments AppointmentAttachment[] @relation("AttachmentUploader")
   @@index([role, active])
 }
 
@@ -104,10 +118,42 @@ model Appointment {
   assignedEmployee User? @relation("EmployeeAppointments", fields: [assignedEmployeeId], references: [id])
   observations AppointmentObservation[]
   statusHistory AppointmentStatusHistory[]
+  attachments AppointmentAttachment[]
   @@index([citizenId, scheduledAt])
   @@index([serviceId, scheduledAt])
   @@index([assignedEmployeeId, status])
   @@index([status, scheduledAt])
+}
+
+model Notification {
+  id String @id @default(cuid())
+  userId String
+  type NotificationType
+  title String
+  message String
+  entityType String?
+  entityId String?
+  readAt DateTime?
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, readAt, createdAt])
+  @@index([userId, createdAt])
+}
+
+model AppointmentAttachment {
+  id String @id @default(cuid())
+  appointmentId String
+  uploadedById String
+  originalName String
+  storedName String @unique
+  mimeType String
+  size Int
+  path String
+  visibleToCitizen Boolean @default(true)
+  createdAt DateTime @default(now())
+  appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  uploadedBy User @relation("AttachmentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+  @@index([appointmentId, createdAt])
 }
 
 model AppointmentObservation {
