@@ -1,72 +1,91 @@
 # JustiTurno
 
-Sistema web para organizar servicios y citas de atención en una Casa de Justicia.
+JustiTurno organiza servicios y citas de una Casa de Justicia. Reduce la atención informal, permite seguir cada solicitud y separa responsabilidades de ciudadanía, funcionarios y administración.
 
-## Arquitectura
+## Usuarios y características
 
-- `frontend/`: React + Vite, con modo demostración local y consumo de API real.
-- `backend/`: Express, Prisma, PostgreSQL y autenticación con cookies httpOnly.
-- `docker-compose.yml`: PostgreSQL 16 en el puerto local `5435`.
+- **Ciudadano:** registro, perfil, servicios, disponibilidad, citas, adjuntos y notificaciones.
+- **Funcionario:** agenda, observaciones y transiciones de atención.
+- **Administrador:** usuarios, funcionarios, servicios, requisitos, horarios, auditoría, reportes y CSV.
 
-## Instalación
+Incluye códigos JT, cupos por franja, historial, sesiones revocables, Swagger/OpenAPI y health checks.
 
-Desde `C:\Users\LENOVO\Documents\JustiTurno`:
+## Arquitectura y stack
 
-```bash
+React + Vite + Tailwind forman la SPA; Express ofrece una API REST JSON; Prisma accede a PostgreSQL. Tecnologías: JavaScript, React Router, Node.js, Express, Prisma, PostgreSQL, Zod, bcrypt, JWT, Docker, Vitest y ESLint. Detalles: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+```text
+frontend/  SPA, rutas, componentes, contextos y servicios HTTP
+backend/   API Express, Prisma, validadores, middlewares y pruebas
+docs/      documentación técnica, académica y evidencias
+```
+
+## Requisitos e instalación
+
+Node.js 20+, npm y Docker Desktop activo.
+
+```powershell
 npm install
 docker compose up -d
 npm run prisma:generate
-npm run prisma:migrate -- --name phase2_appointments
 npm run prisma:seed
 npm run dev
 ```
 
-Frontend: `http://127.0.0.1:5174` · API: `http://127.0.0.1:8081/api/v1` en esta máquina.
+Frontend: `http://127.0.0.1:5174` · API: `http://127.0.0.1:8081/api/v1` · Swagger: `http://127.0.0.1:8081/api-docs`.
 
-## Modos del frontend
+## Variables
 
-En `frontend/.env`, `VITE_USE_MOCKS=true` mantiene la demostración basada en `localStorage`. Con `VITE_USE_MOCKS=false`, inicio de sesión, disponibilidad, citas y acciones de funcionario usan la API real. El frontend envía cookies mediante `credentials: include`.
+Copie los ejemplos como `.env` locales, sin subirlos a Git.
 
-## API disponible
+```text
+# backend/.env
+NODE_ENV=development
+PORT=8081
+DATABASE_URL=postgresql://postgres:postgres@localhost:5435/justiturno?schema=public
+JWT_SECRET=un-secreto-local-seguro
+FRONTEND_URL=http://127.0.0.1:5174
+APP_TIMEZONE=America/Bogota
+UPLOAD_DIR=uploads
+MAX_UPLOAD_SIZE_MB=5
 
-- Autenticación: registro, inicio de sesión (con bloqueo por intentos), cierre de sesión, `POST /auth/logout-all` (revoca todas las sesiones) y sesión actual.
-- Servicios: listado, detalle y `GET /services/:slug/availability?date=YYYY-MM-DD`.
-- Ciudadano: crear, consultar, detallar y cancelar citas.
-- Funcionario: listar, aceptar, rechazar, reprogramar, atender, finalizar y registrar observaciones; `GET /employee/dashboard` con métricas y servicios asignados.
-- Perfil (todos los roles): datos personales, cambio de contraseña (revoca otras sesiones) y sesiones activas con revocación.
-- Administración: dashboard ampliado, citas, usuarios (detalle y activar/desactivar), servicios y horarios, CRUD de funcionarios con asignación de servicios, CRUD de requisitos por servicio y registro de auditoría con filtros.
+# frontend/.env
+VITE_API_URL=http://127.0.0.1:8081/api/v1
+VITE_USE_MOCKS=false
+VITE_PUBLIC_HOLIDAYS_API_URL=https://date.nager.at/api/v3/PublicHolidays
+```
 
-## Seguridad
+## Base de datos, Prisma y desarrollo
 
-- Sesiones: cookie `httpOnly` + `sameSite=lax` (+ `secure` en producción), JWT con `jti` almacenado en `UserSession`; el middleware revoca el acceso si la sesión fue cerrada o expiró.
-- Bloqueo: 5 intentos fallidos bloquean la cuenta por 15 minutos (autodesbloqueo).
-- Protección de último administrador: no se puede desactivar el único admin activo.
-- Auditoría: acciones de autenticación, perfiles, citas, servicios, funcionarios y administración quedan en `AuditLog`.
-- CSRF: mitigado por `sameSite=lax` (la cookie no acompaña peticiones cross-site de mutación), CORS restringido al origen del frontend con credenciales, mutaciones solo por `POST/PATCH/DELETE` con `Content-Type: application/json` (requiere preflight). No se requiere token CSRF adicional; como endurecimiento opcional se puede migrar a `sameSite=strict`.
+PostgreSQL corre por Docker en `5435`. Use `npm run prisma:generate`; para una migración de desarrollo use `npm run prisma:migrate -- --name nombre`; para recargar datos demo, `npm run prisma:seed`. No ejecute el seed automáticamente en producción.
 
-## Cuentas seed
+`npm run dev` inicia API y frontend juntos. Si Vite informa que el puerto está ocupado, cierre el proceso Vite anterior o use la URL que ese proceso ya mostró; no abra el puerto de otro proyecto.
 
-| Rol | Correo | Contraseña |
-| --- | --- | --- |
-| Ciudadano | ciudadano@demo.com | Demo1234 |
-| Funcionario | funcionario@demo.com | Demo1234 |
-| Funcionario 2 | funcionario2@demo.com | Demo1234 |
-| Administrador | admin@demo.com | Demo1234 |
+## Calidad
 
-`funcionario@demo.com` atiende Orientación jurídica y Conciliación; `funcionario2@demo.com` atiende Comisaría de Familia y Atención a víctimas.
-
-## Validación
-
-```bash
-# Raíz (backend)
-npm run lint
-npm run test
-
-# Frontend
-cd frontend
+```powershell
 npm run lint
 npm run test
 npm run build
+npx prisma validate --schema backend/prisma/schema.prisma
 ```
 
-La disponibilidad se calcula en `America/Bogota` usando horarios activos, capacidad por franja y citas que consumen cupo. Cada transición de estado queda registrada en el historial de la cita. La suite backend (`backend/tests`) cubre Fase 2 y Fase 3 contra la API real; la suite frontend (`frontend/src/test`) cubre componentes públicos y de Fase 3.
+## Demo
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Ciudadano | ciudadano@demo.com | Demo1234 |
+| Funcionario | funcionario@demo.com | Demo1234 |
+| Administrador | admin@demo.com | Demo1234 |
+
+## Seguridad, notificaciones y archivos
+
+Contraseñas bcrypt, JWT con `jti`, sesiones revocables, cookies httpOnly, roles, ownership, bloqueo de login, rate limits, Helmet, CORS restringido, Zod, auditoría y filtros de upload protegen el sistema. Las notificaciones, adjuntos y reportes CSV están integrados por rol. Detalles: [docs/SECURITY.md](docs/SECURITY.md).
+
+## API externa académica
+
+El tablero ciudadano consulta festivos públicos de Colombia desde Nager.Date solo como referencia informativa. No altera disponibilidad. Véase [Actividad 4](docs/academico/ACTIVIDAD_4_API_EXTERNA.md).
+
+## Despliegue
+
+El frontend puede ir a Vercel/Netlify y la API a Render/Railway/Coolify/VPS con PostgreSQL administrado. Se requieren URL públicas, variables, `prisma migrate deploy`, CORS, cookies y almacenamiento persistente para adjuntos. Consulte [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) antes de publicar.

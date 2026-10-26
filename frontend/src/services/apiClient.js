@@ -1,4 +1,4 @@
-export const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8080/api/v1'
+export const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8081/api/v1'
 export const useMocks = import.meta.env.VITE_USE_MOCKS !== 'false'
 let unauthorizedHandler = null
 export const onUnauthorized = (handler) => { unauthorizedHandler = handler }
