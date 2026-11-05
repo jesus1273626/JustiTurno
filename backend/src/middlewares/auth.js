@@ -13,7 +13,7 @@ export const authenticate = async (req, _res, next) => {
     if (!user.active) return next({ status: 401, message: 'Tu cuenta no se encuentra activa.' })
     const session = payload.jti ? await prisma.userSession.findUnique({ where: { jti: payload.jti } }) : null
     if (!session || session.revokedAt || session.expiresAt < new Date()) return next({ status: 401, message: 'Sesión no válida o expirada.' })
-    touchSession(session.id)
+    await touchSession(session.id)
     req.user = user
     req.jti = payload.jti
     req.sessionId = session.id

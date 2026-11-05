@@ -12,3 +12,8 @@ npm-debug.log*
 .idea/
 prisma/dev.db
 backend/uploads/
+.wrangler/
+.dev.vars*
+backend/prisma/generated/
+test-results/
+playwright-report/

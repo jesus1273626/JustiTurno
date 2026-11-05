@@ -1,6 +1,6 @@
 # Actividad 7 — Preparación de despliegue
 
-Arquitectura final: SPA React/Vite desplegable en Vercel/Netlify; API Express desplegable en Render, Railway, Coolify o VPS; PostgreSQL administrado; y almacenamiento persistente u object storage para adjuntos.
+Arquitectura elegida (05-11-2026): React + Express en el Worker justiturno, Prisma Postgres vía Hyperdrive y adjuntos R2. Estado: PENDIENTE de evidencia pública. El procedimiento vigente y el rollback están en [DEPLOYMENT](../DEPLOYMENT.md); las opciones de hosts separados descritas abajo son alternativas históricas.
 
 ## Requisitos y variables
 

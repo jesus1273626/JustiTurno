@@ -1,3 +1,10 @@
 # Despliegue
 
-Guía completa: `docs/academico/ACTIVIDAD_7_DESPLIEGUE.md`. Antes de publicar ejecute `npm ci`, generación Prisma, `npx prisma migrate deploy`, lint, test y build. No ejecute el seed automáticamente en producción.
+Estado 2026-11-05: sin URL pública verificada. Worker previsto: **justiturno**. La SPA, Swagger y la API comparten origen. Workers Static Assets sirve React y Express recibe las rutas API mediante el adaptador HTTP de Cloudflare. Prisma usa pg por petición y Hyperdrive **justiturno-db**, con caché de consultas desactivada. Los adjuntos requieren el bucket privado **justiturno-attachments**.
+
+1. Completar el claim de Prisma Postgres. Las cinco migraciones ya se aplicaron con `prisma migrate deploy` y se cargaron las cuatro cuentas demo. No usar para datos personales reales. No ejecutar el seed en cada despliegue. En instalaciones nuevas el seed remoto requiere `NODE_ENV=production` y `DEMO_SEED=true`.
+2. Activar R2 en el panel de Cloudflare (el API devolvió 10042); crear el bucket con `npx wrangler r2 bucket create justiturno-attachments`.
+3. Ejecutar `npm ci`, `npm run build:cloudflare` y `npx wrangler deploy --dry-run`. Para preview, configurar `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` y un `JWT_SECRET` de prueba en .dev.vars. Usar `npm run preview:cloudflare`. En Node se mantiene `npm run dev`.
+4. En el primer despliegue generar un secreto aleatorio y guardarlo sin mostrarlo: `node -e "process.stdout.write(require('node:crypto').randomBytes(48).toString('hex'))" | npx wrangler secret put JWT_SECRET`. No rotarlo al redesplegar. Publicar con `npm run deploy:cloudflare`. No pasar DATABASE_URL al Worker: solo lo requiere Prisma CLI para migraciones; el runtime usa HYPERDRIVE.
+5. Desde la URL asignada comprobar home, refresh de rutas, Swagger y health/ready; repetir el ciclo de cita, R2 y CRUD con los tres roles. Ejecutar `node scripts/verify-browser.mjs` con DEMO_URL igual al origen de demostración para comprobar la UI. Guardar evidencias públicas antes de cerrar la actividad.
+6. Revisar errores con `npx wrangler tail justiturno`. Si existe una versión estable anterior, usar `npx wrangler deployments list` y `npx wrangler rollback <VERSION_ID>`. El rollback de código no restaura el contenido de R2 ni revierte migraciones.

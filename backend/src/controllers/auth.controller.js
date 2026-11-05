@@ -48,11 +48,11 @@ export const login = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
-export const logout = async (req, res) => {
+export const logout = async (req, res, next) => {
   try {
     await revokeSession(req.jti)
     await audit({ actorId: req.user?.id, action: AuditActions.LOGOUT, entityType: 'session', entityId: req.sessionId })
-  } catch { /* el cierre local siempre debe responder */ }
+  } catch (error) { return next(error) }
   res.clearCookie(env.cookieName, clearCookieOptions)
   return success(res, { message: 'Sesión cerrada correctamente.' })
 }
@@ -61,7 +61,7 @@ export const logoutAll = async (req, res, next) => {
   try {
     await revokeAllSessions(req.user.id)
     await audit({ actorId: req.user.id, action: AuditActions.LOGOUT_ALL, entityType: 'user', entityId: req.user.id })
-  } catch (error) { next(error) }
+  } catch (error) { return next(error) }
   res.clearCookie(env.cookieName, clearCookieOptions)
   return success(res, { message: 'Se cerraron todas las sesiones activas.' })
 }

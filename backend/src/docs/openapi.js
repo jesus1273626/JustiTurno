@@ -1,4 +1,3 @@
-import swaggerJSDoc from 'swagger-jsdoc'
 
 const success = (schema) => ({
   description: 'Respuesta correcta.',
@@ -22,7 +21,7 @@ const definition = {
     version: '1.0.0',
     description: 'API REST para la gestión de servicios, usuarios, funcionarios y citas de una Casa de Justicia.'
   },
-  servers: [{ url: 'http://127.0.0.1:8081/api/v1', description: 'Desarrollo local' }],
+  servers: [{ url: '/api/v1', description: 'API del mismo origen' }],
   tags: [
     { name: 'Health', description: 'Estado del servicio y de la base de datos.' },
     { name: 'Auth', description: 'Registro y sesión mediante cookie httpOnly.' },
@@ -91,4 +90,4 @@ const definition = {
   }
 }
 
-export const openapiSpec = swaggerJSDoc({ definition, apis: [] })
+export const openapiSpec = definition

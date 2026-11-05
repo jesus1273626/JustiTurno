@@ -22,7 +22,7 @@ export const revokeAllSessions = async (userId, exceptJti = null) => {
 }
 
 export const touchSession = (id) => {
-  prisma.userSession.updateMany({ where: { id, OR: [{ lastSeenAt: null }, { lastSeenAt: { lt: new Date(Date.now() - 60000) } }] }, data: { lastSeenAt: new Date() } }).catch(() => {})
+  return prisma.userSession.updateMany({ where: { id, OR: [{ lastSeenAt: null }, { lastSeenAt: { lt: new Date(Date.now() - 60000) } }] }, data: { lastSeenAt: new Date() } }).catch(() => {})
 }
 
 export const serializeSession = (session, currentJti) => ({

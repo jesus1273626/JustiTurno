@@ -18,17 +18,19 @@ const services = [
   ['orientacion-ciudadano', 'Orientación al ciudadano', 'Información', 'Guía para identificar el servicio institucional adecuado.', ['Documento de identidad', 'Descripción breve de la solicitud']]
 ]
 
+const initializeOnly = process.env.NODE_ENV === 'production'
+if (initializeOnly && process.env.DEMO_SEED !== 'true') throw new Error('El seed público requiere DEMO_SEED=true y una base académica.')
 const passwordHash = await bcrypt.hash('Demo1234', 12)
-for (const user of users) await prisma.user.upsert({ where: { email: user.email }, update: { ...user, passwordHash, active: true }, create: { ...user, passwordHash } })
+for (const user of users) await prisma.user.upsert({ where: { email: user.email }, update: initializeOnly ? {} : { ...user, passwordHash, active: true }, create: { ...user, passwordHash } })
 const serviceBySlug = {}
 for (const [slug, name, category, description, requirements] of services) {
-  const service = await prisma.service.upsert({ where: { slug }, update: { name, category, description, active: true, durationMinutes: 60 }, create: { slug, name, category, description, durationMinutes: 60 } })
+  const service = await prisma.service.upsert({ where: { slug }, update: initializeOnly ? {} : { name, category, description, active: true, durationMinutes: 60 }, create: { slug, name, category, description, durationMinutes: 60 } })
   serviceBySlug[slug] = service
-  await prisma.requirement.deleteMany({ where: { serviceId: service.id } })
-  await prisma.requirement.createMany({ data: requirements.map((title) => ({ serviceId: service.id, title, required: true })) })
+  if (!initializeOnly) await prisma.requirement.deleteMany({ where: { serviceId: service.id } })
+  if (!initializeOnly || !await prisma.requirement.count({ where: { serviceId: service.id } })) await prisma.requirement.createMany({ data: requirements.map((title) => ({ serviceId: service.id, title, required: true })) })
   // Los horarios amplios de la primera entrega se conservan para auditoría,
   // pero no deben coexistir con las franjas operativas de Fase 2.
-  await prisma.schedule.updateMany({ where: { serviceId: service.id, startTime: '08:00', endTime: '16:00', slotDuration: 30, capacity: 12, active: true }, data: { active: false } })
+  if (!initializeOnly) await prisma.schedule.updateMany({ where: { serviceId: service.id, startTime: '08:00', endTime: '16:00', slotDuration: 30, capacity: 12, active: true }, data: { active: false } })
   for (const schedule of [1, 2, 3, 4, 5].flatMap((dayOfWeek) => [{ serviceId: service.id, dayOfWeek, startTime: '08:00', endTime: '12:00', slotDuration: 60, capacity: 2 }, { serviceId: service.id, dayOfWeek, startTime: '14:00', endTime: '16:00', slotDuration: 60, capacity: 2 }])) {
     const exists = await prisma.schedule.findFirst({ where: { serviceId: schedule.serviceId, dayOfWeek: schedule.dayOfWeek, startTime: schedule.startTime, endTime: schedule.endTime } })
     if (!exists) await prisma.schedule.create({ data: schedule })
@@ -37,7 +39,7 @@ for (const [slug, name, category, description, requirements] of services) {
 const citizen = await prisma.user.findUniqueOrThrow({ where: { email: 'ciudadano@demo.com' } })
 const employee = await prisma.user.findUniqueOrThrow({ where: { email: 'funcionario@demo.com' } })
 const employee2 = await prisma.user.findUniqueOrThrow({ where: { email: 'funcionario2@demo.com' } })
-const assignEmployeeServices = async (employeeId, slugs) => { const ids = slugs.map((slug) => serviceBySlug[slug].id); await prisma.employeeService.deleteMany({ where: { employeeId } }); await prisma.employeeService.createMany({ data: ids.map((serviceId) => ({ employeeId, serviceId })) }) }
+const assignEmployeeServices = async (employeeId, slugs) => { const ids = slugs.map((slug) => serviceBySlug[slug].id); if (!initializeOnly) await prisma.employeeService.deleteMany({ where: { employeeId } }); await prisma.employeeService.createMany({ skipDuplicates: true, data: ids.map((serviceId) => ({ employeeId, serviceId })) }) }
 await assignEmployeeServices(employee.id, ['orientacion-juridica', 'conciliacion'])
 await assignEmployeeServices(employee2.id, ['comisaria-familia', 'atencion-victimas'])
 const nextWeekday = () => { let date = DateTime.now().setZone('America/Bogota').plus({ days: 1 }).startOf('day'); while (date.weekday > 5) date = date.plus({ days: 1 }); return date }
@@ -50,6 +52,7 @@ const appointments = [
   ['JT-000005', 'atencion-victimas', 'ACCEPTED', scheduledAt(1, 10), employee2, 'Solicitud demo aceptada por el segundo funcionario.']
 ]
 for (const [code, slug, status, date, assigned, reason] of appointments) {
+  if (initializeOnly && await prisma.appointment.findUnique({where:{code}})) continue
   const assignedEmployeeId = assigned ? assigned.id : null
   const appointment = await prisma.appointment.upsert({ where: { code }, update: { status, scheduledAt: date, assignedEmployeeId, reason }, create: { code, citizenId: citizen.id, serviceId: serviceBySlug[slug].id, status, scheduledAt: date, assignedEmployeeId, reason } })
   await prisma.appointmentStatusHistory.deleteMany({ where: { appointmentId: appointment.id } })

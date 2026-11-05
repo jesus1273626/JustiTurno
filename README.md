@@ -88,4 +88,4 @@ El tablero ciudadano consulta festivos públicos de Colombia desde Nager.Date so
 
 ## Despliegue
 
-El frontend puede ir a Vercel/Netlify y la API a Render/Railway/Coolify/VPS con PostgreSQL administrado. Se requieren URL públicas, variables, `prisma migrate deploy`, CORS, cookies y almacenamiento persistente para adjuntos. Consulte [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) antes de publicar.
+El despliegue objetivo usa Cloudflare Workers, Static Assets, Hyperdrive, Prisma Postgres y un bucket R2 privado. Consulta [la guía de publicación](docs/DEPLOYMENT.md). Al 5 de noviembre de 2026 la activación de R2 está pendiente y no hay URL pública verificada.

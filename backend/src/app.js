@@ -4,8 +4,8 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import rateLimit from 'express-rate-limit'
-import swaggerUi from 'swagger-ui-express'
+
+import { configure, limitAuth } from '#platform'
 import { env } from './config/env.js'
 import { openapiSpec } from './docs/openapi.js'
 import authRoutes from './routes/auth.routes.js'
@@ -24,13 +24,13 @@ export const createApp = () => {
   app.disable('x-powered-by')
   app.use((req, res, next) => { req.requestId = crypto.randomUUID(); res.setHeader('X-Request-Id', req.requestId); next() })
   app.use(helmet())
-  app.use(cors({ origin: env.frontendUrl, credentials: true }))
+  app.use(cors({ origin: env.nodeEnv === 'production' ? (process.env.FRONTEND_URL || false) : env.frontendUrl, credentials: true }))
   app.use(express.json({ limit: '100kb' }))
   app.use(cookieParser())
   app.get('/api-docs.json', (_req, res) => res.json(openapiSpec))
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpec, { swaggerOptions: { withCredentials: true, persistAuthorization: true } }))
+  configure(app)
   if (env.nodeEnv !== 'test') app.use(morgan(':method :url :status :response-time ms id=:req[x-request-id]'))
-  const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false, message: { success: false, error: { message: 'Demasiados intentos. Intenta de nuevo más tarde.' } } })
+  const authLimiter = limitAuth({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false, message: { success: false, error: { message: 'Demasiados intentos. Intenta de nuevo más tarde.' } } })
   app.use('/api/v1/auth/login', authLimiter)
   app.use('/api/v1/auth/register', authLimiter)
   app.use('/api/v1/health', healthRoutes)

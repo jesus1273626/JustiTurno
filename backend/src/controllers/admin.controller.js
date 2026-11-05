@@ -24,7 +24,7 @@ const loadEmployeeRelations = async (ids) => {
   const counts = await prisma.appointment.groupBy({ by: ['assignedEmployeeId'], where: { assignedEmployeeId: { in: ids }, status: { in: activeStatuses } }, _count: { _all: true } })
   return { services, counts: Object.fromEntries(counts.map((row) => [row.assignedEmployeeId, row._count._all])) }
 }
-const serializeEmployee = (employee, services = [], activeAppointments = 0) => ({ ...employee, services, activeAppointments })
+const serializeEmployee = (employee, services = [], activeAppointments = 0) => ({ ...publicUser(employee), services, activeAppointments })
 const loadEmployee = async (id) => {
   const employee = await prisma.user.findUnique({ where: { id }, include: { employeeServices: { include: { service: serviceRef } } } })
   if (!employee) return null
