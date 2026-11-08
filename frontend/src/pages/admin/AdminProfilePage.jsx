@@ -15,5 +15,5 @@ export default function AdminProfilePage() {
   const handleLogoutAll = async () => { await logoutAll() }
   if (loading) return <p className="text-sm text-slate-500">Cargando tu perfil…</p>
   const data = profile || user || {}
-  return <><PageHeader title="Perfil del administrador" description="Tus datos personales y de seguridad."/><div className="grid max-w-4xl gap-6"><PersonalInfo user={data}/><ChangePassword/><ActiveSessions onLogoutAll={handleLogoutAll}/></div></>
+  return <><PageHeader title="Perfil del administrador" description="Tus datos personales y de seguridad."/><div className="grid max-w-4xl grid-cols-1 gap-6"><PersonalInfo user={data}/><ChangePassword/><ActiveSessions onLogoutAll={handleLogoutAll}/></div></>
 }

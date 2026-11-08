@@ -64,7 +64,7 @@ export default function AdminUsersPage() {
       </select>
       <button className="btn-secondary" onClick={filter}>Filtrar</button>
     </div>
-    <div className="card overflow-x-auto">
+    <div className="card hidden overflow-x-auto sm:block">
       <table className="w-full min-w-[680px] text-left text-sm">
         <thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="px-5 py-3">Nombre</th><th className="px-5 py-3">Correo</th><th className="px-5 py-3">Rol</th><th className="px-5 py-3">Estado</th><th className="px-5 py-3 text-right">Acciones</th></tr></thead>
         <tbody>
@@ -80,13 +80,12 @@ export default function AdminUsersPage() {
           </tr>)}
         </tbody>
       </table>
-      {loading && <p className="p-6 text-sm text-slate-500">Cargando usuarios…</p>}
-      {!loading && !items.length && <p className="p-6 text-sm text-slate-500">No hay usuarios para mostrar.</p>}
     </div>
-    <div className="mt-5"><Pagination pagination={pagination} onChange={load}/></div>
+    {loading && <p className="p-6 text-sm text-slate-500">Cargando usuarios…</p>}
+    {!loading && !items.length && <p className="p-6 text-sm text-slate-500">No hay usuarios para mostrar.</p>}
     <div className="mt-6 space-y-3 sm:hidden">
       {items.map((user) => <div className="card p-4" key={user.id}>
-        <div className="flex items-start justify-between gap-3"><div><p className="font-bold text-navy">{user.firstName ? `${user.firstName} ${user.lastName}` : user.name}</p><p className="text-xs text-slate-500">{user.email}</p></div>{statusBadge(user.active)}</div>
+        <div className="flex items-start justify-between gap-3"><div className="min-w-0 break-words"><p className="font-bold text-navy">{user.firstName ? `${user.firstName} ${user.lastName}` : user.name}</p><p className="text-xs text-slate-500">{user.email}</p></div>{statusBadge(user.active)}</div>
         <p className="mt-1 text-xs text-slate-600">Rol: {labels[user.role]}</p>
         <div className="mt-3 flex gap-2">
           <button className="btn-secondary" onClick={() => openDetail(user)}><UserRound size={15}/>Detalle</button>
@@ -94,13 +93,14 @@ export default function AdminUsersPage() {
         </div>
       </div>)}
     </div>
+    <div className="mt-5"><Pagination pagination={pagination} onChange={load}/></div>
     {toggling && <Modal title={toggling.active ? 'Desactivar usuario' : 'Activar usuario'} onClose={() => setToggling(null)}>
       <p className="text-sm text-slate-600">{toggling.active ? `¿Desactivar a ${toggling.firstName} ${toggling.lastName}? Se cerrarán sus sesiones activas y no podrá iniciar sesión.` : `¿Activar a ${toggling.firstName} ${toggling.lastName}? Podrá iniciar sesión de nuevo.`}</p>
       <div className="mt-6 flex justify-end gap-3"><button className="btn-ghost" onClick={() => setToggling(null)}>Cancelar</button><button className="btn-primary" onClick={toggleStatus}>{toggling.active ? 'Desactivar' : 'Activar'}</button></div>
     </Modal>}
     {detail && <Modal title="Detalle del usuario" onClose={() => setDetail(null)}>
       <div className="space-y-4">
-        <div className="flex items-center gap-3"><span className="rounded-lg bg-skysoft p-3 text-primary"><UserRound size={20}/></span><div><p className="font-bold text-navy">{detail.firstName} {detail.lastName}</p><p className="text-xs text-slate-500">{detail.email}</p></div>{statusBadge(detail.active)}</div>
+        <div className="flex items-center gap-3"><span className="rounded-lg bg-skysoft p-3 text-primary"><UserRound size={20}/></span><div className="min-w-0 break-words"><p className="font-bold text-navy">{detail.firstName} {detail.lastName}</p><p className="text-xs text-slate-500">{detail.email}</p></div>{statusBadge(detail.active)}</div>
         <dl className="grid gap-3 text-sm sm:grid-cols-2">
           <div><dt className="label">Documento</dt><dd className="text-slate-700">{detail.document}</dd></div>
           <div><dt className="label">Teléfono</dt><dd className="text-slate-700">{detail.phone || 'No registrado'}</dd></div>
