@@ -8,7 +8,7 @@ export default {
     const {pathname, origin} = new URL(request.url)
     if (pathname === '/api-docs' || pathname === '/api-docs/') return bindings.ASSETS.fetch(new URL('/swagger/', origin))
     if (pathname.startsWith('/api/') || pathname === '/api-docs.json') {
-      if (!bindings.HYPERDRIVE || !bindings.ATTACHMENTS || !bindings.JWT_SECRET || bindings.JWT_SECRET.length < 32) {
+      if (!bindings.HYPERDRIVE || !bindings.JWT_SECRET || bindings.JWT_SECRET.length < 32) {
         return Response.json({success:false,error:{message:'Configuración incompleta.'}},{status:503})
       }
       return handler.fetch(request, bindings, ctx)

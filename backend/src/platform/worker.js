@@ -4,7 +4,6 @@ import { PrismaClient } from '../../prisma/generated/worker/wasm.js'
 import { PrismaPg } from '@prisma/adapter-pg'
 
 const scope = new AsyncLocalStorage()
-export const bucket = env.ATTACHMENTS
 export const limitAuth = () => async (req,res,next) => {
   const result = await env.AUTH_LIMITER.limit({key:req.get('cf-connecting-ip') || 'local'})
   if (!result.success) return res.status(429).json({success:false,error:{message:'Demasiados intentos. Intenta más tarde.'}})

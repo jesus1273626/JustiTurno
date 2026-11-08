@@ -159,7 +159,14 @@ model AppointmentAttachment {
   createdAt DateTime @default(now())
   appointment Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   uploadedBy User @relation("AttachmentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+  content AttachmentContent?
   @@index([appointmentId, createdAt])
+}
+
+model AttachmentContent {
+  attachmentId String @id
+  bytes Bytes
+  attachment AppointmentAttachment @relation(fields: [attachmentId], references: [id], onDelete: Cascade)
 }
 
 model AppointmentObservation {

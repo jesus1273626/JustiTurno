@@ -24,7 +24,7 @@ export const createApp = () => {
   app.disable('x-powered-by')
   app.use((req, res, next) => { req.requestId = crypto.randomUUID(); res.setHeader('X-Request-Id', req.requestId); next() })
   app.use(helmet())
-  app.use(cors({ origin: env.nodeEnv === 'production' ? (process.env.FRONTEND_URL || false) : env.frontendUrl, credentials: true }))
+  app.use(cors({ origin: env.nodeEnv === 'production' ? (process.env.FRONTEND_URL || process.env.RENDER_EXTERNAL_URL || false) : env.frontendUrl, credentials: true }))
   app.use(express.json({ limit: '100kb' }))
   app.use(cookieParser())
   app.get('/api-docs.json', (_req, res) => res.json(openapiSpec))
