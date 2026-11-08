@@ -1,22 +1,19 @@
-# Actividad 7 — Preparación de despliegue
+# Actividad 7 — Despliegue público
 
-Arquitectura elegida (05-11-2026): React + Express en el Worker justiturno, Prisma Postgres vía Hyperdrive y adjuntos R2. Estado: PENDIENTE de evidencia pública. El procedimiento vigente y el rollback están en [DEPLOYMENT](../DEPLOYMENT.md); las opciones de hosts separados descritas abajo son alternativas históricas.
+**Estado académico: CUMPLIDO.** Validación realizada el 7 de noviembre de 2026, hora de Bogotá.
 
-## Requisitos y variables
+[Aplicación](https://justiturno.onrender.com/) · [Portal de acceso](https://justiturno.onrender.com/login) · [Swagger](https://justiturno.onrender.com/api-docs/) · [Disponibilidad](https://justiturno.onrender.com/api/v1/health/ready)
 
-Backend: `NODE_ENV=production`, `PORT`, `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL`, `APP_TIMEZONE`, `UPLOAD_DIR`, `MAX_UPLOAD_SIZE_MB`, `JWT_EXPIRES_IN`, `COOKIE_NAME`. Frontend: `VITE_API_URL`, `VITE_USE_MOCKS=false`, `VITE_PUBLIC_HOLIDAYS_API_URL`. No publicar `.env` ni secretos.
+El sitio académico está publicado en el plan Free de Render. El mismo servidor entrega la interfaz React y la API Express. La base Neon PostgreSQL conserva citas, sesiones y adjuntos privados cuando el servidor web se detiene. La inicialización y las seis migraciones están descritas en la [guía técnica](../DEPLOYMENT.md).
 
-```
-FRONTEND_PUBLIC_URL=
-BACKEND_PUBLIC_URL=
-```
+La comprobación desde Internet obtuvo HTTP 200 para la portada, la ruta directa de servicios, el catálogo API, Swagger, el contrato OpenAPI y los dos controles de conexión a PostgreSQL. Una ruta API inexistente devolvió HTTP 404 en JSON.
 
-## Pasos
+El [registro de 48 comprobaciones públicas](../evidencias/actividad7/flujo-citas.json) cubre la creación de una cita, la gestión por el funcionario asignado, cinco estados hasta la finalización y seis tipos de notificación. El PDF de 34.358 bytes se descargó con el mismo SHA-256 después de cerrar sesión y volver a ingresar. Un ciudadano ajeno y un funcionario de otro servicio recibieron HTTP 403. La descarga posterior al borrado devolvió HTTP 404.
 
-1. Provisionar PostgreSQL y cargar `DATABASE_URL` segura en backend.
-2. En backend: `npm ci`, `npm run prisma:generate`, `npx prisma migrate deploy`, `npm start`.
-3. Configurar `FRONTEND_URL` exactamente al origen público y `PORT` proporcionado por hosting.
-4. En frontend: configurar `VITE_API_URL=https://BACKEND_PUBLIC_URL/api/v1`, ejecutar `npm ci && npm run build` y publicar `frontend/dist`.
-5. Verificar `/api/v1/health`, `/health/db`, `/health/ready`, `/api-docs` y login desde el dominio público.
+Con el PostgreSQL de Docker detenido, se verificaron la disponibilidad de Neon, el inicio y cierre de sesión del ciudadano y el rechazo de su acceso al módulo administrativo. La cookie recibida por HTTPS tenía los atributos `Secure`, `HttpOnly` y `SameSite=Lax`.
 
-CORS permite únicamente `FRONTEND_URL` con credenciales. La cookie es httpOnly y `secure` en producción; si los dominios son cross-site se debe probar y decidir `sameSite` con el proveedor antes de modificarlo. Los uploads en disco local no sobreviven hosting efímero: usar volumen persistente u object storage. Rollback básico: revertir al despliegue anterior, restaurar una copia de la base y no ejecutar migraciones irreversibles sin respaldo.
+Chromium abrió 21 rutas en seis anchos (1440, 1024, 768, 430, 390 y 375 px). Pasaron las 126 comprobaciones de desbordamiento horizontal. Los tres roles iniciaron sesión. Swagger ejecutó GET de salud y servicios con HTTP 200. Se descargó el CSV UTF-8 y se verificaron en la interfaz el CRUD de un requisito, las recargas y el rechazo de un título vacío. Tres tandas concurrentes a la API de salud, base y servicios devolvieron los resultados esperados.
+
+El tablero ciudadano mostró los festivos de Nager.Date. Se verificaron carga, vacío y error controlando la respuesta de red en el navegador de prueba. Las diez capturas del sitio público incluyen su URL y tamaño en el [manifiesto](../evidencias/actividad7/manifest.json). Las actividades 4 y 6 conservan también sus capturas locales originales.
+
+Pasaron 38 pruebas del backend y 17 del frontend, lint, compilación y validación de Prisma. El seguimiento de las cuatro alertas altas y dos moderadas figura en la [auditoría de dependencias](../DEPENDENCY_AUDIT.md).

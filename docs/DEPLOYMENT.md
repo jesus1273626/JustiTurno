@@ -1,10 +1,24 @@
-# Despliegue
+# Despliegue público de JustiTurno
 
-Estado 2026-11-05: sin URL pública verificada. Worker previsto: **justiturno**. La SPA, Swagger y la API comparten origen. Workers Static Assets sirve React y Express recibe las rutas API mediante el adaptador HTTP de Cloudflare. Prisma usa pg por petición y Hyperdrive **justiturno-db**, con caché de consultas desactivada. Los adjuntos requieren el bucket privado **justiturno-attachments**.
+[Aplicación](https://justiturno.onrender.com/) · [Swagger](https://justiturno.onrender.com/api-docs/) · [Disponibilidad de la API y la base](https://justiturno.onrender.com/api/v1/health/ready)
 
-1. Completar el claim de Prisma Postgres. Las cinco migraciones ya se aplicaron con `prisma migrate deploy` y se cargaron las cuatro cuentas demo. No usar para datos personales reales. No ejecutar el seed en cada despliegue. En instalaciones nuevas el seed remoto requiere `NODE_ENV=production` y `DEMO_SEED=true`.
-2. Activar R2 en el panel de Cloudflare (el API devolvió 10042); crear el bucket con `npx wrangler r2 bucket create justiturno-attachments`.
-3. Ejecutar `npm ci`, `npm run build:cloudflare` y `npx wrangler deploy --dry-run`. Para preview, configurar `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE` y un `JWT_SECRET` de prueba en .dev.vars. Usar `npm run preview:cloudflare`. En Node se mantiene `npm run dev`.
-4. En el primer despliegue generar un secreto aleatorio y guardarlo sin mostrarlo: `node -e "process.stdout.write(require('node:crypto').randomBytes(48).toString('hex'))" | npx wrangler secret put JWT_SECRET`. No rotarlo al redesplegar. Publicar con `npm run deploy:cloudflare`. No pasar DATABASE_URL al Worker: solo lo requiere Prisma CLI para migraciones; el runtime usa HYPERDRIVE.
-5. Desde la URL asignada comprobar home, refresh de rutas, Swagger y health/ready; repetir el ciclo de cita, R2 y CRUD con los tres roles. Ejecutar `node scripts/verify-browser.mjs` con DEMO_URL igual al origen de demostración para comprobar la UI. Guardar evidencias públicas antes de cerrar la actividad.
-6. Revisar errores con `npx wrangler tail justiturno`. Si existe una versión estable anterior, usar `npx wrangler deployments list` y `npx wrangler rollback <VERSION_ID>`. El rollback de código no restaura el contenido de R2 ni revierte migraciones.
+El servicio Node de Render usa el plan Free en Virginia. Express sirve la SPA, la API y Swagger desde el mismo dominio HTTPS. Render asigna el puerto y el servidor escucha en todas las interfaces en producción. Neon aloja PostgreSQL 16 en un proyecto académico del plan Free. Los documentos y sus metadatos se guardan en una transacción y se descargan a través de la API autenticada. El despliegue es independiente del equipo de desarrollo.
+
+## Configuración del servicio
+
+- Repositorio `jesus1273626/JustiTurno`, rama `release/final`. La publicación es manual para decidir qué revisión pasa a la instancia pública. [Servicio en Render](https://dashboard.render.com/web/srv-dbnrpb8u01pc73dikdc0).
+- Compilación con `npm ci --include=dev && npm run prisma:generate && npm run build`. Arranque con `npm start --workspace backend`.
+- Render proporciona `PORT` y `RENDER_EXTERNAL_URL`. La aplicación usa este último como origen permitido. Variables de compilación: `VITE_USE_MOCKS=false`, `VITE_API_URL=/api/v1` y `VITE_ACADEMIC_DEMO=true`. Variables del servidor: `NODE_ENV=production`, `NODE_VERSION=22`, `APP_TIMEZONE=America/Bogota` y `MAX_UPLOAD_SIZE_MB=5`.
+- `DATABASE_URL` y `JWT_SECRET` son secretos de Render. Mantener el mismo secreto al redesplegar para conservar sesiones vigentes.
+
+## Base y archivos
+
+Aplicar las migraciones con `prisma migrate deploy` desde el workspace del backend, con la conexión del entorno de destino. Comprobar después con `prisma migrate status`. Se aplicaron seis migraciones, incluida la tabla privada `AttachmentContent`. La inicialización académica con `NODE_ENV=production` y `DEMO_SEED=true` se ejecutó dos veces sobre la base dedicada de Neon. Se conservaron cuatro usuarios, seis servicios, cinco citas y ocho transiciones iniciales. Las publicaciones posteriores conservan los datos.
+
+## Operación
+
+Render confirmó como activa la revisión de aplicación [870197e](https://github.com/jesus1273626/JustiTurno/commit/870197ee1dcbc9a440d777a0415e8838216d9f55), despliegue `dep-dbnrr3s9v7es73djaeog`. La revisión contiene los ajustes para pantallas estrechas y los scripts de verificación.
+
+Comprobar la portada, `/api/v1/health/ready`, un login y una descarga autenticada después de cada publicación. La suspensión del servicio web por inactividad puede demorar el primer acceso. Los datos persisten en Neon mientras el servidor web duerme. [Condiciones de Render Free](https://render.com/docs/free).
+
+Para revertir el servidor, utilizar el último despliegue estable en Render y comprobar su compatibilidad con el esquema vigente. Las migraciones y los datos requieren una estrategia de recuperación independiente. La configuración alternativa de Wrangler sigue disponible para desarrollo.

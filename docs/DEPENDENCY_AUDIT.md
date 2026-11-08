@@ -1,5 +1,7 @@
 # Auditoría de dependencias
 
+La comprobación del despliegue en Render del 7 de noviembre de 2026 volvió a registrar **4 altas, 2 moderadas y 0 críticas** con `npm audit --omit=dev`. Las correcciones propuestas por npm cambian versiones mayores. La instancia académica utiliza las dependencias comprobadas abajo y conserva este pendiente de mantenimiento.
+
 **Actualización de publicación, 05-11-2026.** `npm audit --omit=dev` pasó de 6 altas + 7 moderadas a 4 altas + 2 moderadas (0 críticas). npm incluye paquetes afectados por la misma dependencia; no son seis fallas independientes.
 
 | Cadena/versión inicial | Aviso GHSA | Cambio o riesgo residual |
@@ -24,4 +26,4 @@ Ejecutado el 26 de octubre de 2026: `npm audit --omit=dev`. Resultado: 6 altas, 
 | `react-router-dom`, `react-router` | Moderada | Dependencia directa/transitiva | Actualizar pareja compatible y probar rutas/redirecciones. |
 | `fast-uri` | Moderada | Transitiva | Resolver con actualización de la cadena que la trae. |
 
-No se aplicó `npm audit fix --force`: un cambio masivo de versiones mayores sin suite final estable no es seguro. Estas alertas son pendientes de mantenimiento antes de un despliegue público.
+Las alertas restantes requieren migraciones de dependencias y pruebas de compatibilidad antes de utilizar esta demo con datos reales.

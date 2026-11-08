@@ -1,0 +1,86 @@
+{
+  "origin": "https://justiturno.onrender.com",
+  "verifiedAt": "2026-11-08T00:11:00.466Z",
+  "files": [
+    {
+      "file": "01-home-produccion.png",
+      "url": "https://justiturno.onrender.com/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "02-swagger-produccion.png",
+      "url": "https://justiturno.onrender.com/api-docs/#/Health/get_health",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "03-ciudadano.png",
+      "url": "https://justiturno.onrender.com/ciudadano",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "04-nueva-cita.png",
+      "url": "https://justiturno.onrender.com/ciudadano/citas/nueva",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "05-funcionario.png",
+      "url": "https://justiturno.onrender.com/funcionario",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "06-admin.png",
+      "url": "https://justiturno.onrender.com/admin",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "07-crud-produccion.png",
+      "url": "https://justiturno.onrender.com/admin/servicios",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "08-reportes.png",
+      "url": "https://justiturno.onrender.com/admin/reportes",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    {
+      "file": "09-mobile-390.png",
+      "url": "https://justiturno.onrender.com/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      }
+    },
+    {
+      "file": "10-health-ready.png",
+      "url": "https://justiturno.onrender.com/api/v1/health/ready",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    }
+  ]
+}

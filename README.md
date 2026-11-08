@@ -2,6 +2,8 @@
 
 JustiTurno organiza servicios y citas de una Casa de Justicia. Reduce la atención informal, permite seguir cada solicitud y separa responsabilidades de ciudadanía, funcionarios y administración.
 
+**Demo académica en línea:** [Abrir JustiTurno](https://justiturno.onrender.com/) · [Iniciar sesión](https://justiturno.onrender.com/login) · [Swagger](https://justiturno.onrender.com/api-docs/). Usa datos ficticios. La primera visita después de un periodo de inactividad puede tardar alrededor de un minuto.
+
 ## Usuarios y características
 
 - **Ciudadano:** registro, perfil, servicios, disponibilidad, citas, adjuntos y notificaciones.
@@ -88,4 +90,4 @@ El tablero ciudadano consulta festivos públicos de Colombia desde Nager.Date so
 
 ## Despliegue
 
-El despliegue objetivo usa Cloudflare Workers, Static Assets, Hyperdrive, Prisma Postgres y un bucket R2 privado. Consulta [la guía de publicación](docs/DEPLOYMENT.md). Al 5 de noviembre de 2026 la activación de R2 está pendiente y no hay URL pública verificada.
+Render Free sirve React y Express desde el mismo origen. Neon Free conserva las citas, las sesiones y el contenido privado de los adjuntos en PostgreSQL. La [comprobación de disponibilidad](https://justiturno.onrender.com/api/v1/health/ready) verifica la conexión. Consulta la [guía de despliegue](docs/DEPLOYMENT.md).
